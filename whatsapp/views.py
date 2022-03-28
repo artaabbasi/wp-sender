@@ -4,8 +4,6 @@ import time
 import pywhatkit
 import pyautogui as pg
 
-import webbrowser as web
-from pyvirtualdisplay import Display
 from rest_framework import generics
 from rest_framework import permissions as perms
 from rest_framework.decorators import api_view, permission_classes
@@ -30,7 +28,7 @@ def sendmessage(request , id):
       
       for t in phone_list:  
          x = datetime.datetime.now()
-         pywhatkit.sendwhatmsg_instantly(t,obj.text, wait_time=10)
+         pywhatkit.sendwhatmsg_instantly(t,obj.text, wait_time=10, tab_close=True)
          pg.press("enter")
          time.sleep(15)
          
