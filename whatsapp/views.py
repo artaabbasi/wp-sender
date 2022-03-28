@@ -17,6 +17,7 @@ from . import models, permissions, serializers
 @permission_classes((permissions.SendMessageAccess))
 @api_view(['POST'])
 def sendmessage(request , id):
+   print("sending")
    if request.method == 'POST':
       serializer = serializers.SendMessageSerializer
       obj = models.SendMessage.objects.get(id = id)
@@ -26,11 +27,12 @@ def sendmessage(request , id):
       for i in y:
          phone_list.append(i.phone)
       print(phone_list)
-
+      
       for t in phone_list:  
          x = datetime.datetime.now()
-         pywhatkit.sendwhatmsg_instantly(t,obj.text, wait_time=5)
+         pywhatkit.sendwhatmsg_instantly(t,obj.text, wait_time=10)
          pg.press("enter")
+         time.sleep(15)
          
 
 
