@@ -16,7 +16,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     level=logging.INFO)
 
 logger = logging.getLogger(__name__)
-
+url = 'http://127.0.0.1:8000'
 text = ""
 phones = []
 # Define a few command handlers. These usually take the two arguments update and
@@ -36,7 +36,7 @@ def help(update, context):
 def echo(update, context):
     message = update.message.text.split("-")
     for msg in message:
-        req = requests.post("http://127.0.0.1:8000/whatsapp/phones/", data={"phone":msg})
+        req = requests.post(url+"/whatsapp/phones/", data={"phone":msg})
     update.message.reply_text(req.status_code)
 
 
@@ -47,14 +47,14 @@ def message_text(update, context):
     global message
     if update.message.text.isnumeric():
         if int(update.message.text) < 10000:
-            requests.post(f"http://127.0.0.1:8000/whatsapp/sendmessage/{(update.message.text)}/")
+            requests.post(url+f"/whatsapp/sendmessage/{(update.message.text)}/")
             update.message.reply_text("ارسال شد!")
             return None
     if len(message) > 0 :
         if message.get("phones") is not None :
             if update.message.text == "submit":
                 message.update({"user":1})
-                req = requests.post("http://127.0.0.1:8000/whatsapp/createmessage/", data=message)
+                req = requests.post(url+"/whatsapp/createmessage/", data=message)
                 if req.status_code == 201:
                     keys = ReplyKeyboardMarkup([['/start'], ['/help'], ['/messages'], ['/send']])
                     update.message.reply_text("ثبت شد", reply_markup=keys)
@@ -65,7 +65,7 @@ def message_text(update, context):
         else:
             phones = update.message.text.split('-')
             result = "شماره های زیر اضافه شدند:"
-            req = requests.get("http://127.0.0.1:8000/whatsapp/phones/")
+            req = requests.get(url+"/whatsapp/phones/")
             response = json.loads(req.content)
             exist_phones = []
             message_phones = []
@@ -75,13 +75,13 @@ def message_text(update, context):
                 if re.compile('^989[0-9]{9,9}$').match(phone):
                     valid_phone = "+"+phone
                     if not valid_phone in exist_phones:
-                        requests.post("http://127.0.0.1:8000/whatsapp/phones/", data={"phone":valid_phone})
+                        requests.post(url+"/whatsapp/phones/", data={"phone":valid_phone})
                     message_phones.append(valid_phone)
                     result+=f"\n{valid_phone}"
                 else:
                     update.message.reply_text(f"شماره وارد شده {phone} نامعتبر است.")
             if len(message_phones) > 0:
-                req = requests.get("http://127.0.0.1:8000/whatsapp/phones/")
+                req = requests.get(url+"/whatsapp/phones/")
                 response = json.loads(req.content)
                 message_phone_id = []
                 for resp in response:
@@ -112,7 +112,7 @@ def error(update, context):
     logger.warning('Update "%s" caused error "%s"', update, context.error)
 
 def messages(update, context):
-    req = requests.get("http://127.0.0.1:8000/whatsapp/createmessage/")
+    req = requests.get(url+"/whatsapp/createmessage/")
     response = json.loads(req.content)
     for message in response:
         phone_str = ""
@@ -121,7 +121,7 @@ def messages(update, context):
         update.message.reply_text(f'آیدی:"{message["id"]}"\nمتن:"{message["text"]}"\nشماره ها:"{phone_str}"')
 
 def phones(update, context):
-    req = requests.get("http://127.0.0.1:8000/whatsapp/phones/")
+    req = requests.get(url+"/whatsapp/phones/")
     response = json.loads(req.content)
     for phone in response:
         update.message.reply_text(f"{str(phone['id'])}: {str(phone['phone'])}") 
@@ -130,11 +130,11 @@ def phones(update, context):
 
 def send(update, context):
     try:
-        requests.post(f"http://127.0.0.1:8000/whatsapp/sendmessage/{context.args[0]}/")
+        requests.post(url+f"/whatsapp/sendmessage/{context.args[0]}/")
         update.message.reply_text("ارسال شد!")
     except:
         keys = []
-        req = requests.get("http://127.0.0.1:8000/whatsapp/createmessage/")
+        req = requests.get(url+"/whatsapp/createmessage/")
         response = json.loads(req.content)
         for message in response:
             keys.append(str(message["id"]))
