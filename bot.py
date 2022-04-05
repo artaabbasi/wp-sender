@@ -42,14 +42,16 @@ def echo(update, context):
 
     
 
-
 def message_text(update, context):
     global message
-    if update.message.text.isnumeric():
-        if int(update.message.text) < 10000:
-            requests.post(url+f"/whatsapp/sendmessage/{(update.message.text)}/")
+    message_txt = update.message.text.split(":")
+    try:
+        if int(message_txt[0]) < 10000:
+            requests.post(url+f"/whatsapp/sendmessage/{str(message_txt[0])}/")
             update.message.reply_text("ارسال شد!")
             return None
+    except:
+        pass
     if len(message) > 0 :
         if message.get("phones") is not None :
             if update.message.text == "submit":
