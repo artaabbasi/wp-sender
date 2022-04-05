@@ -54,9 +54,11 @@ def message_text(update, context):
         pass
     if len(message) > 0 :
         if message.get("phones") is not None :
+            
             if update.message.text == "submit":
                 message.update({"user":1})
-                req = requests.post(url+"/whatsapp/createmessage/", data=message)
+                print(json.dumps(message, indent=4))
+                req = requests.post(url+"/whatsapp/createmessage/", message)
                 if req.status_code == 201:
                     keys = ReplyKeyboardMarkup([['/start'], ['/help'], ['/messages'], ['/send']])
                     update.message.reply_text("ثبت شد", reply_markup=keys)

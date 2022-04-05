@@ -9,7 +9,7 @@ class Phone(models.Model):
 
 class SendMessage(models.Model):
     user = models.ForeignKey(get_user_model(),on_delete=models.CASCADE)
-    text = models.TextField(max_length=200)
+    text = models.TextField()
     phones = models.ManyToManyField(Phone)
     date = models.DateTimeField(auto_now_add=True)
 
