@@ -66,7 +66,10 @@ def message_text(update, context):
             phones = update.message.text.split('-')
             result = "شماره های زیر اضافه شدند:"
             req = requests.get(url+"/whatsapp/phones/")
-            response = json.loads(req.content)
+            try:
+                response = json.loads(req.content)
+            except:
+                response = [{'phone':'+989120000000'}]
             exist_phones = []
             message_phones = []
             for resp in response:
@@ -82,7 +85,10 @@ def message_text(update, context):
                     update.message.reply_text(f"شماره وارد شده {phone} نامعتبر است.")
             if len(message_phones) > 0:
                 req = requests.get(url+"/whatsapp/phones/")
-                response = json.loads(req.content)
+                try:
+                    response = json.loads(req.content)
+                except:
+                    response = [{'phone':'+989120000000'}]
                 message_phone_id = []
                 for resp in response:
                     if resp["phone"] in message_phones:
@@ -113,12 +119,16 @@ def error(update, context):
 
 def messages(update, context):
     req = requests.get(url+"/whatsapp/createmessage/")
-    response = json.loads(req.content)
+    try:
+        response = json.loads(req.content)
+    except:
+        update.message.reply_text("پیامی برای نمایش وجود ندارد")
+        return None
     for message in response:
         phone_str = ""
         for ph in message["phones_obj"]:
             phone_str += " - "+ph["phone"]
-        update.message.reply_text(f'آیدی:"{message["id"]}"\nمتن:"{message["text"]}"\nشماره ها:"{phone_str}"')
+        update.message.reply_text(f'آیدی:"{message["id"]}"\nمتن:"{message["text"][:30]}"\nشماره ها:"{phone_str}"')
 
 def phones(update, context):
     req = requests.get(url+"/whatsapp/phones/")
@@ -135,9 +145,13 @@ def send(update, context):
     except:
         keys = []
         req = requests.get(url+"/whatsapp/createmessage/")
-        response = json.loads(req.content)
+        try:
+            response = json.loads(req.content)
+        except:
+            update.message.reply_text("پیامی برای ارسال وجود ندارد")
+            return None
         for message in response:
-            keys.append(str(message["id"]))
+            keys.append(str(message["id"])+":"+str(message["text"][:15]))
         key_2 = ReplyKeyboardMarkup([keys])
         update.message.reply_text("لطفا پیام مورد نظر را انتخاب کنید :", reply_markup=key_2)
         dp.add_handler(MessageHandler(Filters.text , message_text))
