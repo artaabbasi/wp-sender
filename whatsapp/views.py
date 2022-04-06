@@ -15,38 +15,45 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
 from . import models, permissions, serializers
-
+import pika 
+import json
 
 loggin = False
 
-def _loggin():
-   global loggin
-   if not loggin:
-      global driver
-      driver = webdriver.Chrome("/home/arta/Downloads/chromedriver_linux64/chromedriver")
-      driver.get("https://web.whatsapp.com")
-      print("Scan QR Code, And then Enter")
-      input()
-      print("Logged In")
-      loggin = True
+connection = pika.BlockingConnection(
+   pika.ConnectionParameters(host='localhost'))
+global channel
+channel = connection.channel()
+channel.queue_declare(queue='hello')
+
+
 
 @permission_classes((permissions.SendMessageAccess))
 @api_view(['POST'])
-def sendmessage(request , id):
-   global driver
-   _loggin()
-   message_obj = models.SendMessage.objects.get(id=id)
-   contacts, text = message_obj.phones.all(), message_obj.text
-   for contact in contacts:
-      driver.get(f"https://web.whatsapp.com/send?phone={contact}&text={text}")
-      inp_xpath = '//div[@title="Type a message"]'
-      input_box = WebDriverWait(driver,50).until(lambda driver: driver.find_element(by=By.XPATH, value=inp_xpath))
-      time.sleep(2)
-      input_box.send_keys(Keys.ENTER)
-      time.sleep(2)
-         
+def sendmessage(request):
+   datas = request.data['data']
+   messages = []
+   for data in datas:
+      messages.append(data)
+   connection = pika.BlockingConnection(
+   pika.ConnectionParameters(host='localhost'))
+   channel = connection.channel()
+   channel.queue_declare(queue='hello')
+   for message in messages:
+      for phone in  message.get('phones'):
+         value = {
+            "phone" : f"{phone}",
+            "text" : f"{message['text']}",
+         }
+
+         value  = json.dumps(value)
+
+         channel.basic_publish(exchange='', routing_key='hello', body=value)
+   connection.close()
 
    return Response({"message": "messages sended"})
+
+
 
 class Retrievemessage(generics.RetrieveUpdateDestroyAPIView):
    serializer_class = serializers.SendMessageSerializer
@@ -55,11 +62,11 @@ class Retrievemessage(generics.RetrieveUpdateDestroyAPIView):
    def get_queryset(self):
         return models.SendMessage.objects.all()
         
-class Createmessage(generics.ListCreateAPIView):
-    serializer_class = serializers.SendMessageSerializer
-
-    def get_queryset(self):
-        return models.SendMessage.objects.all()
+class Createmessage(generics.ListAPIView):
+   serializer_class = serializers.SendMessageSerializer
+   permission_classes = [perms.IsAuthenticated,]
+   def get_queryset(self):
+      return models.SendMessage.objects.all()
 
 class Createphone(generics.ListCreateAPIView):
     serializer_class = serializers.PhoneSerializer

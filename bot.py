@@ -1,5 +1,6 @@
 
 import logging
+from os import access
 import re
 import requests
 import json
@@ -19,17 +20,26 @@ logger = logging.getLogger(__name__)
 url = 'http://127.0.0.1:8000'
 text = ""
 phones = []
+header_access_token = {}
 # Define a few command handlers. These usually take the two arguments update and
 # context. Error handlers also receive the raised TelegramError object in error.
 def start(update, context):
     """Send a message when the command /start is issued."""
-    keys = ReplyKeyboardMarkup([['/start'], ['/help'], ['/messages'], ['/create'], ['/phones'], ['/send']])
+    req = requests.post(url+"/auth/login/", data={"telegram_id":update.message.chat_id})
+    keys = ReplyKeyboardMarkup([['/start'], ['/help'], ['/messages'], ['/create'], ['/phones'], ])
     update.message.reply_text("به ربات کنترل واتسآپ Nova خوش آمدید.", reply_markup=keys)
-
+    if req.status_code==500:
+        update.message.reply_text("شما دسترسی لازم برای استفاده از ربات را ندارید لطفا به آیدی پشتیبانی پیام دهید.")
+        return None
+    else:
+        global header_access_token
+        response = json.loads(req.content)
+        access_token = response.get('access')
+        header_access_token = {f"Authorization":"Bearer {access_token}"}
 
 def help(update, context):
     """Send a message when the command /help is issued."""
-    keys = ReplyKeyboardMarkup([['/start'], ['/help'], ['/messages'], ['/create'], ['/phones'], ['/send']])
+    keys = ReplyKeyboardMarkup([['/start'], ['/help'], ['/messages'], ['/create'], ['/phones'], ])
     update.message.reply_text('برای ایجاد پیام از دستور /create\nبرای دیدن پیام های موجود از دستور /messages\nبرای دیدن شماره تلفن های ثبت شده از دستور /phones\nبرای ارسال پیام از دستور /send \n استفاده کنید', reply_markup=keys)
 
 
@@ -44,23 +54,14 @@ def echo(update, context):
 
 def message_text(update, context):
     global message
-    message_txt = update.message.text.split(":")
-    try:
-        if int(message_txt[0]) < 10000:
-            requests.post(url+f"/whatsapp/sendmessage/{str(message_txt[0])}/")
-            update.message.reply_text("ارسال شد!")
-            return None
-    except:
-        pass
     if len(message) > 0 :
         if message.get("phones") is not None :
             
-            if update.message.text == "submit":
+            if update.message.text == "Send":
                 message.update({"user":1})
-                print(json.dumps(message, indent=4))
-                req = requests.post(url+"/whatsapp/createmessage/", message)
+                req = requests.post(url+f"/whatsapp/sendmessage/", message)
                 if req.status_code == 201:
-                    keys = ReplyKeyboardMarkup([['/start'], ['/help'], ['/messages'], ['/send']])
+                    keys = ReplyKeyboardMarkup([['/start'], ['/help'], ['/messages'], ])
                     update.message.reply_text("ثبت شد", reply_markup=keys)
 
                     message = {}
@@ -98,7 +99,7 @@ def message_text(update, context):
                     if resp["phone"] in message_phones:
                         message_phone_id.append(resp["id"])
                 message.update({"phones":message_phone_id})
-            key = ReplyKeyboardMarkup([["submit"]])
+            key = ReplyKeyboardMarkup([["Send"]])
             update.message.reply_text(result, reply_markup=key)
     else:
         message.update({"text":update.message.text})
@@ -122,7 +123,8 @@ def error(update, context):
     logger.warning('Update "%s" caused error "%s"', update, context.error)
 
 def messages(update, context):
-    req = requests.get(url+"/whatsapp/createmessage/")
+    global header_access_token
+    req = requests.get(url+"/whatsapp/createmessage/", headers=header_access_token)
     try:
         response = json.loads(req.content)
     except:
@@ -142,26 +144,6 @@ def phones(update, context):
 
 
 
-def send(update, context):
-    try:
-        requests.post(url+f"/whatsapp/sendmessage/{context.args[0]}/")
-        update.message.reply_text("ارسال شد!")
-    except:
-        keys = []
-        req = requests.get(url+"/whatsapp/createmessage/")
-        try:
-            response = json.loads(req.content)
-        except:
-            update.message.reply_text("پیامی برای ارسال وجود ندارد")
-            return None
-        for message in response:
-            keys.append(str(message["id"])+":"+str(message["text"][:15]))
-        key_2 = ReplyKeyboardMarkup([keys])
-        update.message.reply_text("لطفا پیام مورد نظر را انتخاب کنید :", reply_markup=key_2)
-        dp.add_handler(MessageHandler(Filters.text , message_text))
-
-
-
 
 
 def main():
@@ -169,7 +151,7 @@ def main():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
-    updater = Updater("5141656941:AAGLVKX656U5Ls2XgkML9BS30q7KvLBg2K4", use_context=True)
+    updater = Updater("5154862736:AAFEjZIbLSt6Y7ZxzOdKBUKSwwPtfOU_SAE", use_context=True)
 
     # Get the dispatcher to register handlers
     global dp
@@ -181,7 +163,6 @@ def main():
     dp.add_handler(CommandHandler("messages", messages))
     dp.add_handler(CommandHandler("create", createmessage))
     dp.add_handler(CommandHandler("phones", phones))
-    dp.add_handler(CommandHandler("send", send))
 
 
 

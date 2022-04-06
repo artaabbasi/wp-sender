@@ -5,5 +5,5 @@ urlpatterns = [
     path('messagedetail/<int:id>', views.Retrievemessage.as_view(), name='retrieve-message'),
     path('createmessage/', views.Createmessage.as_view(), name='create-message'),
     path('phones/', views.Createphone.as_view(), name='create-phone'),
-    path('sendmessage/<int:id>/', views.sendmessage , name = 'send-message'),
+    path('sendmessage/', views.sendmessage , name = 'send-message'),
 ]

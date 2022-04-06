@@ -19,4 +19,6 @@ from django.urls import path , include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('whatsapp/', include('whatsapp.urls')),
+    path('auth/', include('accounts.urls')),
+    path('base/auth/', include('dj_rest_auth.urls')),
 ]
