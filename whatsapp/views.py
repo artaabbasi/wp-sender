@@ -28,7 +28,7 @@ channel.queue_declare(queue='hello')
 
 
 
-@permission_classes((permissions.SendMessageAccess))
+@permission_classes((perms.IsAuthenticated))
 @api_view(['POST'])
 def sendmessage(request):
    datas = request.data['data']
@@ -44,6 +44,7 @@ def sendmessage(request):
          value = {
             "phone" : f"{phone}",
             "text" : f"{message['text']}",
+            "media" : f"{message['media']}",
          }
 
          value  = json.dumps(value)

@@ -1,3 +1,4 @@
+from operator import concat
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.ui import Select
@@ -7,7 +8,10 @@ from selenium.webdriver.chrome.options import Options
 import time
 import pika
 import json
-
+import os
+import random
+import pyperclip
+from selenium.webdriver.remote.webelement import WebElement
 # def _login():
 #     global driver
 #     qr_box = '//canvas[@aria-label="Scan me!"]'
@@ -50,13 +54,14 @@ channel = connection.channel()
 channel.queue_declare(queue='hello')
 global driver
 driver = webdriver.Chrome(executable_path="/home/arta/Downloads/chromedriver_linux64/chromedriver")
+driver.get(f"https://web.whatsapp.com/")
 
 def callback(ch, method, properties, body):
     res = json.loads(body)
     global driver
+    media = res.get("media", None)
     text = res.get('text')
     phone = res.get('phone')
-    driver.get(f"https://web.whatsapp.com/send?phone={phone}&text={text}")
     login_page = '//img[@crossorigin="anonymous"][@style="visibility: visible;"][@alt=""]'
     time.sleep(3)
     try:
@@ -76,16 +81,46 @@ def callback(ch, method, properties, body):
                 driver.save_screenshot("qr2.png")
                 inp_xpath_search = '//div[@title="Search input textbox"]'
                 WebDriverWait(driver,50).until(lambda driver: driver.find_element(by=By.XPATH, value=inp_xpath_search))
+                os.remove("qr.png") 
+                os.remove("qr2.png") 
                 break
     except:
         pass
     inp_xpath_search = '//div[@title="Search input textbox"]'
-    WebDriverWait(driver,50).until(lambda driver: driver.find_element(by=By.XPATH, value=inp_xpath_search))
+    inp_xpath_search_box = WebDriverWait(driver,50).until(lambda driver: driver.find_element(by=By.XPATH, value=inp_xpath_search))
+    inp_xpath_search_box.click()
+    inp_xpath_search_box.send_keys('Wp test')
+    selected_group = driver.find_element(by=By.XPATH, value="//span[@title='Wp test']")
+    selected_group.click()
     inp_xpath = '//div[@title="Type a message"]'
     input_box = WebDriverWait(driver,5).until(lambda driver: driver.find_element(by=By.XPATH, value=inp_xpath))
-    time.sleep(2)
-    input_box.send_keys(Keys.ENTER)
-    time.sleep(2)
+    time.sleep(random.randint(5, 10))
+    contact = f"http://wa.me/{phone}"
+
+    input_box.send_keys(contact+Keys.ENTER)
+    time.sleep(random.randint(7, 11))
+    message_link = driver.find_element(by=By.XPATH , value = f'//a[@href="{contact}"]')
+    message_link.click()
+    time.sleep(random.randint(3, 9))
+    if media != None:
+        from io import BytesIO
+
+        import pyperclip as pc
+        from PIL import Image
+
+        image = Image.open(media)
+        output = BytesIO()
+        image.convert("RGB").save(output, "BMP")
+        data = output.getvalue()[14:]
+        output.close()
+        pc.copy(data)
+        input_box_after_link = WebDriverWait(driver,5).until(lambda driver: driver.find_element(by=By.XPATH, value=inp_xpath))
+        input_box_after_link.send_keys(text + Keys.CONTROL + "v")
+        
+    else:
+        input_box_after_link = WebDriverWait(driver,5).until(lambda driver: driver.find_element(by=By.XPATH, value=inp_xpath))
+        input_box_after_link.send_keys(text + Keys.ENTER)
+    time.sleep(random.randint(8, 15))
 
 channel.basic_consume(queue='hello', on_message_callback=callback, auto_ack=True)
 
