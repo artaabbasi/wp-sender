@@ -41,7 +41,7 @@ def sendmessage(request):
    channel.queue_declare(queue='hello')
    for message in messages:
       media = None
-      models.SendMessage.objects.create(user=request.user, text=message['text'])
+      models.SendMessage.objects.create(user_id=request.user.id, text=message['text'])
       try:
          media_obj = models.MessageFile.objects.get(pk=int(message['media']))
          media = media_obj.image.path
