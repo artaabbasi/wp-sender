@@ -12,6 +12,8 @@ import os
 import random
 import pyperclip
 from selenium.webdriver.remote.webelement import WebElement
+from platform import system
+from config.settings import BASE_DIR
 # def _login():
 #     global driver
 #     qr_box = '//canvas[@aria-label="Scan me!"]'
@@ -47,6 +49,10 @@ from selenium.webdriver.remote.webelement import WebElement
 #     input_box.send_keys(Keys.ENTER)
 #     time.sleep(2)
 
+if system().lower() == "linux":
+    driver_exe = "chromium/linux/chromedriver"
+elif system().lower() == "windows":
+    driver_exe = "chromium/windows/chromedriver.exe"
 
 connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
 channel = connection.channel()
