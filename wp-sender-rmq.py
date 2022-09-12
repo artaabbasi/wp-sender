@@ -14,40 +14,6 @@ import pyperclip
 from selenium.webdriver.remote.webelement import WebElement
 from platform import system
 from config.settings import BASE_DIR
-# def _login():
-#     global driver
-#     qr_box = '//canvas[@aria-label="Scan me!"]'
-#     WebDriverWait(driver,50).until(lambda driver: driver.find_element(by=By.XPATH, value=qr_box))
-#     driver.save_screenshot("qr.png")
-#     time.sleep(15)
-#     WebDriverWait(driver,50).until(lambda driver: driver.find_element(by=By.XPATH, value=qr_box))
-#     driver.save_screenshot("qr2.png")
-#     inp_xpath_search = '//div[@title="Search input textbox"]'
-#     WebDriverWait(driver,50).until(lambda driver: driver.find_element(by=By.XPATH, value=inp_xpath_search))
-#     return None
-
-
-# def send(body):
-#     print(body)
-#     message = body.split(':')
-#     global driver
-#     driver.get(f"https://web.whatsapp.com/send?phone={message[0]}&text={message[1]}")
-#     login_page = '//div[@class="_1E40b"][@role="button"][@style="opacity: 1;"]'
-#     time.sleep(3)
-#     try:
-#         if driver.find_element(by=By.XPATH, value=login_page).is_displayed():
-#             print("login needed")
-#             _login()
-#             print("login done")
-#     except:
-#         pass
-#     inp_xpath_search = '//div[@title="Search input textbox"]'
-#     WebDriverWait(driver,50).until(lambda driver: driver.find_element(by=By.XPATH, value=inp_xpath_search))
-#     inp_xpath = '//div[@title="Type a message"]'
-#     input_box = WebDriverWait(driver,5).until(lambda driver: driver.find_element(by=By.XPATH, value=inp_xpath))
-#     time.sleep(2)
-#     input_box.send_keys(Keys.ENTER)
-#     time.sleep(2)
 
 if system().lower() == "linux":
     driver_exe = "chromium/linux/chromedriver"
