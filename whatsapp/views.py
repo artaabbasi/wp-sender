@@ -27,7 +27,7 @@ global channel
 channel = connection.channel()
 channel.queue_declare(queue='hello')
 
-
+@csrf_exempt
 @permission_classes((perms.AllowAny))
 @api_view(['POST'])
 def sendmessage(request):
