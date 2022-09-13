@@ -22,7 +22,7 @@ import json
 loggin = False
 
 connection = pika.BlockingConnection(
-   pika.ConnectionParameters(host='localhost'))
+   pika.ConnectionParameters(host='localhost', heartbeat=60))
 global channel
 channel = connection.channel()
 channel.queue_declare(queue='hello')
