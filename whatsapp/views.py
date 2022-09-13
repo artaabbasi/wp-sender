@@ -29,7 +29,7 @@ channel.queue_declare(queue='hello')
 
 @csrf_exempt
 @permission_classes((perms.AllowAny))
-@api_view(['POST'])
+@api_view(['GET'])
 def sendmessage(request):
    # datas = request.data['data']
    # messages = []
