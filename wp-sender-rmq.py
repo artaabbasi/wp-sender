@@ -96,7 +96,6 @@ def callback(ch, method, properties, body):
         input_box_after_link.send_keys(text + Keys.ENTER)
     time.sleep(random.randint(8, 15))
 
-channel.basic_consume(queue='hello', on_message_callback=callback, auto_ack=True)
 
 
 def start():
@@ -109,10 +108,13 @@ def start():
     driver.get(f"https://web.whatsapp.com/")
 
 def main():
+    global channel
     connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost', heartbeat=60))
     channel = connection.channel()
 
     channel.queue_declare(queue='hello')
+
+    channel.basic_consume(queue='hello', on_message_callback=callback, auto_ack=True)
 
     try:
         channel.start_consuming()
