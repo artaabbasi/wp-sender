@@ -98,7 +98,7 @@ def callback(ch, method, properties, body):
 
 
 
-def start():
+async def start():
     global driver
     if system().lower() == "linux":
         driver_exe = "chromium/linux/chromedriver"
