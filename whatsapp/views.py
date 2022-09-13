@@ -28,7 +28,7 @@ channel = connection.channel()
 channel.queue_declare(queue='hello')
 
 
-@permission_classes((perms.IsAuthenticated))
+@permission_classes((perms.AllowAny))
 @api_view(['POST'])
 def sendmessage(request):
    datas = request.data['data']
