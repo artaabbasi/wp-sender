@@ -31,32 +31,32 @@ channel.queue_declare(queue='hello')
 @permission_classes((perms.AllowAny))
 @api_view(['POST'])
 def sendmessage(request):
-   datas = request.data['data']
-   messages = []
-   for data in datas:
-      messages.append(data)
-   connection = pika.BlockingConnection(
-   pika.ConnectionParameters(host='localhost'))
-   channel = connection.channel()
-   channel.queue_declare(queue='hello')
-   for message in messages:
-      media = None
-      models.SendMessage.objects.create(user_id=request.user.id, text=message['text'])
-      try:
-         media_obj = models.MessageFile.objects.get(pk=int(message['media']))
-         media = media_obj.image.path
-      except:
-         media = None
-      for phone in  message.get('phones'):
-         value = {
-            "phone" : f"{phone}",
-            "text" : f"{message['text']}",
-         }
-         value.update({"media" : f"{media}"}) if media is not None else None
-         value  = json.dumps(value)
+   # datas = request.data['data']
+   # messages = []
+   # for data in datas:
+   #    messages.append(data)
+   # connection = pika.BlockingConnection(
+   # pika.ConnectionParameters(host='localhost'))
+   # channel = connection.channel()
+   # channel.queue_declare(queue='hello')
+   # for message in messages:
+   #    media = None
+   #    models.SendMessage.objects.create(user_id=request.user.id, text=message['text'])
+   #    try:
+   #       media_obj = models.MessageFile.objects.get(pk=int(message['media']))
+   #       media = media_obj.image.path
+   #    except:
+   #       media = None
+   #    for phone in  message.get('phones'):
+   #       value = {
+   #          "phone" : f"{phone}",
+   #          "text" : f"{message['text']}",
+   #       }
+   #       value.update({"media" : f"{media}"}) if media is not None else None
+   #       value  = json.dumps(value)
 
-         channel.basic_publish(exchange='', routing_key='hello', body=value)
-   connection.close()
+   #       channel.basic_publish(exchange='', routing_key='hello', body=value)
+   # connection.close()
 
    return Response({"message": "messages sended"})
 
