@@ -20,7 +20,7 @@ if system().lower() == "linux":
 elif system().lower() == "windows":
     driver_exe = r"chromium\windows\chromedriver.exe"
 
-connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost', heartbeat=60))
 channel = connection.channel()
 
 channel.queue_declare(queue='hello')
