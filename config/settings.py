@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'dj_rest_auth',
 ]
 
+CSRF_TRUSTED_ORIGINS = ['*']
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -169,4 +170,3 @@ STATIC_URL = '/static/'
 # }
 
 
-CSRF_TRUSTED_ORIGINS = ['*']
