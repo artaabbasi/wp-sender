@@ -26,23 +26,23 @@ SECRET_KEY = "yg&a5*(4j(i6nlrk#y6_2h+00(mb2z$=!+$@&3yvz4j=i@8ibi"
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-
+CORS_ORIGIN_ALLOW_ALL = True
 
 # Application definition
 
 INSTALLED_APPS = [
+    "corsheaders",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework.authtoken',
-    "corsheaders",
-    'whatsapp',
     'rest_framework',
-    'accounts',
     'dj_rest_auth',
+    'rest_framework.authtoken',
+    'whatsapp',
+    'accounts',
 ]
 
 CSRF_TRUSTED_ORIGINS = ['*']
