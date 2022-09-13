@@ -13,7 +13,7 @@ from rest_framework import generics
 from rest_framework import permissions as perms
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.csrf import csrf_protect, csrf_exempt
 
 from . import models, permissions, serializers
 import pika 
@@ -28,7 +28,7 @@ channel = connection.channel()
 channel.queue_declare(queue='hello')
 
 
-@csrf_protect
+@csrf_exempt
 @permission_classes((perms.IsAuthenticated))
 @api_view(['POST'])
 def sendmessage(request):
