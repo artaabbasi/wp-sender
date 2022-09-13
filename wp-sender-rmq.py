@@ -15,18 +15,9 @@ from selenium.webdriver.remote.webelement import WebElement
 from platform import system
 from config.settings import BASE_DIR
 
-if system().lower() == "linux":
-    driver_exe = "chromium/linux/chromedriver"
-elif system().lower() == "windows":
-    driver_exe = r"chromium\windows\chromedriver.exe"
 
-connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost', heartbeat=60))
-channel = connection.channel()
 
-channel.queue_declare(queue='hello')
-global driver
-driver = webdriver.Chrome(executable_path=driver_exe)
-driver.get(f"https://web.whatsapp.com/")
+
 
 def callback(ch, method, properties, body):
     res = json.loads(body)
@@ -107,4 +98,26 @@ def callback(ch, method, properties, body):
 
 channel.basic_consume(queue='hello', on_message_callback=callback, auto_ack=True)
 
-channel.start_consuming()
+
+def start():
+    global driver
+    if system().lower() == "linux":
+        driver_exe = "chromium/linux/chromedriver"
+    elif system().lower() == "windows":
+        driver_exe = r"chromium\windows\chromedriver.exe"
+    driver = webdriver.Chrome(executable_path=driver_exe)
+    driver.get(f"https://web.whatsapp.com/")
+
+def main():
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost', heartbeat=60))
+    channel = connection.channel()
+
+    channel.queue_declare(queue='hello')
+
+    try:
+        channel.start_consuming()
+    except:
+        main()
+
+
+main()
