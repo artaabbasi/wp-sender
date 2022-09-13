@@ -98,7 +98,7 @@ def callback(ch, method, properties, body):
 
 
 
-async def start():
+def start():
     global driver
     if system().lower() == "linux":
         driver_exe = "chromium/linux/chromedriver"
@@ -109,6 +109,7 @@ async def start():
 
 def main():
     global channel
+    global f
     connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost', heartbeat=60))
     channel = connection.channel()
 
@@ -117,14 +118,13 @@ def main():
     channel.basic_consume(queue='hello', on_message_callback=callback, auto_ack=True)
 
     try:
-        print("*"*90)
-        print(' [*] Waiting for messages. To exit press CTRL+C')
+        f.write("Started \n")
         channel.start_consuming()
     except:
-        print("*"*90)
-        print("Error!!")
+        f.write("Error \n")
         main()
 
 
 start()
+f = open('log.txt', 'w')
 main()
