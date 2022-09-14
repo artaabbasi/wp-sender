@@ -88,7 +88,7 @@ def accept_message(request):
    return Response(status=200)
 
 
-@permission_classes((perms.AllowAny))
+@permission_classes((perms.AllowAny,))
 class SendMessageList(generics.ListAPIView):
    serializer_class = serializers.SendMessageSerializer
 
