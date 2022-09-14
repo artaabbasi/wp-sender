@@ -19,13 +19,6 @@ from . import models, permissions, serializers
 import pika 
 import json
 
-loggin = False
-
-connection = pika.BlockingConnection(
-   pika.ConnectionParameters(host='localhost', heartbeat=60))
-global channel
-channel = connection.channel()
-channel.queue_declare(queue='hello')
 
 @csrf_exempt
 @permission_classes((perms.AllowAny))
@@ -51,16 +44,17 @@ def sendmessage(request):
    channel.queue_declare(queue='hello')
    for message in messages:
       media = None
-      models.SendMessage.objects.create(user_id=request.user.id, text=message['text'])
+      models.SendMessage.objects.create(user_id=message.get('user', 0), text=message['text'])
       try:
          media_obj = models.MessageFile.objects.get(pk=int(message['media']))
          media = media_obj.image.path
       except:
          media = None
-      for phone in  message.get('phones'):
+      for phone in  message.get('phones', []):
          value = {
             "phone" : f"{phone}",
             "text" : f"{message['text']}",
+            "user" : message.get('user', 0),
          }
          value.update({"media" : f"{media}"}) if media is not None else None
          value  = json.dumps(value)
@@ -76,3 +70,17 @@ class FileUpload(generics.ListCreateAPIView):
 
    def get_queryset(self):
         return models.MessageFile.objects.all()
+
+
+
+@csrf_exempt
+@permission_classes((perms.AllowAny))
+@api_view(['POST'])
+def accept_message(request):
+   user = request.data.get('user')
+   text = request.data.get('text')
+   queryset = models.SendMessage.objects.filter(user_id = user, text=text, sended=False)
+   obj = queryset.first()
+   obj.sended = True
+   obj.save()
+   return Response(status=200)

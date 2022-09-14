@@ -8,9 +8,10 @@ class Phone(models.Model):
         return self.phone
 
 class SendMessage(models.Model):
-    user = models.ForeignKey(get_user_model(),on_delete=models.CASCADE, null=True, blank=True)
+    user_id = models.IntegerField()
     text = models.TextField()
     date = models.DateTimeField(auto_now_add=True)
+    sended = models.BooleanField(default=False)
 
     def __str__(self):
         return self.text[:30]

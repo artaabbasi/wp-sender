@@ -14,7 +14,7 @@ import pyperclip
 from selenium.webdriver.remote.webelement import WebElement
 from platform import system
 from config.settings import BASE_DIR
-
+import requests
 
 
 
@@ -94,6 +94,8 @@ def callback(ch, method, properties, body):
     else:
         input_box_after_link = WebDriverWait(driver,5).until(lambda driver: driver.find_element(by=By.XPATH, value=inp_xpath))
         input_box_after_link.send_keys(text + Keys.ENTER)
+    # message/send/
+    requests.post("localhost/whatsapp/message/send/", json=res)
     time.sleep(random.randint(8, 15))
 
 
