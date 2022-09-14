@@ -18,3 +18,9 @@ class SendMessage(models.Model):
 class MessageFile(models.Model):
     name = models.CharField(max_length=100)
     image = models.ImageField()
+
+
+import uuid
+class Tokens(models.Model):
+    token = models.UUIDField(default=uuid.uuid4, unique=True )
+    is_active = models.BooleanField(default=False)

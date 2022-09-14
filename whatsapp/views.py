@@ -31,6 +31,16 @@ channel.queue_declare(queue='hello')
 @permission_classes((perms.AllowAny))
 @api_view(['POST'])
 def sendmessage(request):
+   token = request.data.get('token', "")
+   try:
+      token_obj = models.Tokens.objects.get(token=token)
+      if token_obj.is_active:
+         pass
+      else:
+            return Response(status=403)
+   except :
+      return Response(status=403)
+
    datas = request.data['data']
    messages = []
    for data in datas:
