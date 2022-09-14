@@ -95,7 +95,7 @@ def callback(ch, method, properties, body):
         input_box_after_link = WebDriverWait(driver,5).until(lambda driver: driver.find_element(by=By.XPATH, value=inp_xpath))
         input_box_after_link.send_keys(text + Keys.ENTER)
     # message/send/
-    requests.post("localhost/whatsapp/message/send/", json=res)
+    requests.post("http://api3.madtalk.ir/whatsapp/message/send/", json=res)
     time.sleep(random.randint(8, 15))
 
 
