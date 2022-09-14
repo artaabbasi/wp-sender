@@ -95,3 +95,7 @@ class SendMessageList(generics.ListAPIView):
    def get_queryset(self):
       notif_history = self.kwargs['notif_history']
       return models.SendMessage.objects.filter(notif_history_id=notif_history)
+
+   @csrf_exempt
+   def get(self, request, *args, **kwargs):
+      return self.list(request, *args, **kwargs)
