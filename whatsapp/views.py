@@ -88,7 +88,6 @@ def accept_message(request):
    return Response(status=200)
 
 
-@csrf_exempt
 @permission_classes((perms.AllowAny))
 class SendMessageList(generics.ListAPIView):
    serializer_class = serializers.SendMessageSerializer
