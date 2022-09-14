@@ -6,3 +6,8 @@ class FileSerializer(serializers.ModelSerializer):
         model = models.MessageFile
         fields = "__all__"
 
+
+class SendMessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.SendMessage
+        fields = "__all__"

@@ -44,7 +44,7 @@ def sendmessage(request):
    channel.queue_declare(queue='hello')
    for message in messages:
       media = None
-      models.SendMessage.objects.create(user_id=message.get('user', 0), text=message['text'])
+      models.SendMessage.objects.create(user_id=message.get('user', 0), text=message['text'], notif_history_id=message.get('notif_history', 0))
       try:
          media_obj = models.MessageFile.objects.get(pk=int(message['media']))
          media = media_obj.image.path
@@ -55,6 +55,7 @@ def sendmessage(request):
             "phone" : f"{phone}",
             "text" : f"{message['text']}",
             "user" : message.get('user', 0),
+            "notif_history" : message.get('notif_history', 0),
          }
          value.update({"media" : f"{media}"}) if media is not None else None
          value  = json.dumps(value)
@@ -79,8 +80,19 @@ class FileUpload(generics.ListCreateAPIView):
 def accept_message(request):
    user = request.data.get('user')
    text = request.data.get('text')
-   queryset = models.SendMessage.objects.filter(user_id = user, text=text, sended=False)
+   notif_history = request.data.get('notif_history')
+   queryset = models.SendMessage.objects.filter(user_id = user, text=text, notif_history_id=notif_history, sended=False)
    obj = queryset.first()
    obj.sended = True
    obj.save()
    return Response(status=200)
+
+
+@csrf_exempt
+@permission_classes((perms.AllowAny))
+class SendMessageList(generics.ListAPIView):
+   serializer_class = serializers.SendMessageSerializer
+
+   def get_queryset(self):
+      notif_history = self.kwargs['notif_history']
+      return models.SendMessage.objects.filter(notif_history_id=notif_history)

@@ -9,6 +9,7 @@ class Phone(models.Model):
 
 class SendMessage(models.Model):
     user_id = models.IntegerField()
+    notif_history_id = models.IntegerField(default=0)
     text = models.TextField()
     date = models.DateTimeField(auto_now_add=True)
     sended = models.BooleanField(default=False)
